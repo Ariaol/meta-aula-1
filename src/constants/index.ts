@@ -4,18 +4,23 @@ import onboarding3 from "@assets/images/onboarding3.png";
 import getStarted from "@assets/images/get-started.png";
 import signUpCar from "@assets/images/signup-car.png";
 import check from "@assets/images/check.png";
+import mapa from "@assets/images/mapa.png";
 import noResult from "@assets/images/no-result.png";
 import message from "@assets/images/message.png";
 import person from "@assets/icons/person.png"
 import email from "@assets/icons/email.png"
 import lock from "@assets/icons/lock.png"
 import home from "@assets/icons/home.png"
+import chat from "@assets/icons/chat.png"
+import profile from "@assets/icons/profile.png"
 
 export const icons = {
     person,
     email,
     lock,
-    home
+    home,
+    chat,
+    profile
 }
 
 export const images = {
@@ -26,7 +31,8 @@ export const images = {
     signUpCar,
     check,
     noResult,
-    message
+    message,
+    mapa
 }
 
 export const onboarding = [
