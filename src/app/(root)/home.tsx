@@ -1,79 +1,140 @@
 import React, { useState } from 'react';
-import { images } from '@/constants';
-import { View, Text, TextInput, FlatList, TouchableOpacity, Alert, Image } from 'react-native';
+import { View, Text, TextInput, FlatList, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import InteractiveMap from '../../../assets/map';
 
-// TELA DASHBOARD (agora é o componente principal)
+
+interface Trip {
+  id: string;
+  destination: string;
+  date: string;
+}
+
+const COLORS = {
+  primary: '#fff',
+  secondary: '#f8f8f8',
+  border: '#e0e0e0',
+  text: '#333',
+  textMuted: '#777',
+};
+
 export default function DashboardScreen() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [lastTrips, setLastTrips] = useState([
+  const [lastTrips, setLastTrips] = useState<Trip[]>([
     { id: '1', destination: 'Paris', date: '2025-04-12' },
     { id: '2', destination: 'New York', date: '2025-03-30' },
     { id: '3', destination: 'Tokyo', date: '2025-03-25' },
   ]);
 
-  const onSearchChange = (text: string) => setSearchTerm(text);
-  const handleTripClick = (destination: string) =>
+  const filteredTrips = lastTrips.filter(trip =>
+    trip.destination.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleTripClick = (destination: string) => {
     Alert.alert('Viagem Selecionada', `Destino: ${destination}`);
+  };
+
+  const TripCard = ({ trip }: { trip: Trip }) => (
+    <TouchableOpacity
+      style={styles.tripCard}
+      onPress={() => handleTripClick(trip.destination)}
+      accessibilityLabel={`Viagem para ${trip.destination} em ${trip.date}`}
+    >
+      <Text style={styles.tripDestination}>{trip.destination}</Text>
+      <Text style={styles.tripDate}>{trip.date}</Text>
+    </TouchableOpacity>
+  );
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.container}>
       {/* Barra de Pesquisa */}
-      <View style={{ padding: 16, backgroundColor: '#fff' }}>
+      <View style={styles.searchContainer}>
         <TextInput
-          style={{
-            height: 40,
-            borderColor: 'gray',
-            borderWidth: 1,
-            borderRadius: 8,
-            paddingLeft: 8,
-            marginBottom: 16,
-          }}
+          style={styles.searchInput}
           placeholder="Pesquise por destino"
+          placeholderTextColor={COLORS.textMuted}
           value={searchTerm}
-          onChangeText={onSearchChange}
+          onChangeText={setSearchTerm}
+          accessibilityLabel="Campo de pesquisa de destinos"
         />
       </View>
-      {/* Imagem Mapa */}
-      <View style={{
-         height: 150,                   // Altura reduzida
-        marginHorizontal: 16,          // Margem nas laterais
-        marginVertical: 8,             // Espaço acima e abaixo
-        borderRadius: 8,               // Bordas arredondadas
-        overflow: 'hidden',            // Corta o conteúdo para respeitar o borderRadius
-        backgroundColor: '#f5f5f5',    // Cor de fundo (opcional)
-        }}>
-        <Image 
-        source={images.mapa} 
-        style={{
-            width: '100%',
-            height: '100%',
-            resizeMode: 'cover',       // Preenche o espaço mantendo proporção
-        }}
-  />
-</View>
 
-      {/* Últimas Viagens */}
-      <View style={{ padding: 16 }}>
-        <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Últimas Viagens</Text>
+      {/* Mapa Interativo */}
+      <View style={styles.mapContainer}>
+        <InteractiveMap />
+      </View>
+
+      {/* Lista de Viagens */}
+      <View style={styles.tripsContainer}>
+        <Text style={styles.sectionTitle}>Últimas Viagens</Text>
         <FlatList
-          data={lastTrips}
+          data={filteredTrips}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={{
-                backgroundColor: '#f8f8f8',
-                padding: 10,
-                marginVertical: 8,
-                borderRadius: 8,
-              }}
-              onPress={() => handleTripClick(item.destination)}
-            >
-              <Text style={{ fontSize: 16 }}>{item.destination}</Text>
-              <Text style={{ color: '#777' }}>{item.date}</Text>
-            </TouchableOpacity>
-          )}
+          renderItem={({ item }) => <TripCard trip={item} />}
+          ListEmptyComponent={
+            <Text style={styles.emptyText}>Nenhuma viagem encontrada</Text>
+          }
         />
       </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.primary,
+  },
+  searchContainer: {
+    padding: 16,
+    backgroundColor: COLORS.primary,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  searchInput: {
+    height: 40,
+    borderColor: COLORS.border,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingLeft: 12,
+    color: COLORS.text,
+  },
+  mapContainer: {
+    height: 200,
+    marginHorizontal: 16,
+    marginVertical: 8,
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  tripsContainer: {
+    flex: 1,
+    padding: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 12,
+    color: COLORS.text,
+  },
+  tripCard: {
+    backgroundColor: COLORS.secondary,
+    padding: 16,
+    marginVertical: 8,
+    borderRadius: 8,
+  },
+  tripDestination: {
+    fontSize: 16,
+    color: COLORS.text,
+    fontWeight: '500',
+  },
+  tripDate: {
+    color: COLORS.textMuted,
+    marginTop: 4,
+    fontSize: 14,
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: COLORS.textMuted,
+    marginTop: 20,
+    fontSize: 16,
+  },
+});
