@@ -1,19 +1,21 @@
-import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
+import { useEffect } from 'react';
+import maplibregl from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
 
-  export default function InteractiveMap() {
-    const { isLoaded, loadError } = useJsApiLoader({
-      googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY ?? "",
+export default function Map() {
+  useEffect(() => {
+    const map = new maplibregl.Map({
+      container: 'map',
+      style: 'https://demotiles.maplibre.org/style.json',
+      center: [-51.0664, 0.0346], // Marco Zero do Amapá
+      zoom: 15
     });
-  
-    if (loadError) return <div>Erro ao carregar o mapa</div>;
-    if (!isLoaded) return <div>Carregando mapa...</div>;
-  
-    return (
-      <GoogleMap
-        mapContainerStyle={{ width: '100%', height: '100%' }}
-        center={{ lat: -27.590824, lng: -48.551262 }}
-        zoom={15}
-      />
-    );
-  }
-  
+
+    // Adiciona controle de navegação (opcional)
+    map.addControl(new maplibregl.NavigationControl());
+
+    return () => map.remove();
+  }, []);
+
+  return <div id="map" style={{ width: '100%', height: '100vh' }} />;
+}
